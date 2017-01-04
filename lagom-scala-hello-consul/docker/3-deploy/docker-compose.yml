@@ -26,17 +26,17 @@ service-locator:
 #
 # Service Discovery - Registrator
 #
-service-discovery:
-  image: gliderlabs/registrator
-  container_name: registrator
-  hostname: registrator
-  restart: always
+#service-discovery:
+#  image: gliderlabs/registrator
+#  container_name: registrator
+#  hostname: registrator
+#  restart: always
   # -ip <ip address>   Force IP address used for registering services
-  command: -ip=172.17.0.1 consul://consul:8500
-  links:
-  - service-locator
-  volumes:
-  - "/var/run/docker.sock:/tmp/docker.sock"
+#  command: -ip=172.17.0.1 consul://consul:8500
+#  links:
+#  - service-locator
+#  volumes:
+#  - "/var/run/docker.sock:/tmp/docker.sock"
   #net: "host"
 
 helloService:
@@ -44,9 +44,15 @@ helloService:
   labels:
     - "traefik.backend=hello"
     - "traefik.frontend.rule=Path:/v1/hello"
+  ports:
+    - 9001:9000
 
 helloGreeting:
   image: training/greetingservice
   labels:
     - "traefik.backend=greeting"
     - "traefik.frontend.rule=Path:/v1/greeting"
+  links:
+    - helloService
+  ports:
+    - 9002:9000

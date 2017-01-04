@@ -26,7 +26,7 @@ class GreetingServiceImpl @Inject()(helloservice: HelloService)(implicit ex: Exe
     helloservice.hello().invoke().thenCompose(
       (msg: Message) => msg match {
         case message: Message => CompletableFuture.completedFuture[Greeting](
-          new Greeting(InetAddress.getLocalHost.getHostName, InetAddress.getLocalHost.getHostAddress,
+          new Greeting("InetAddress.getLocalHost.getHostName", "InetAddress.getLocalHost.getHostAddress",
             message.hostname, message.ip, message.time))
         case _ => {
           val v = new CompletableFuture[Greeting]()

@@ -15,7 +15,7 @@ ENV SCRIPT "/opt/$SVC_NAME-*/bin/$SVC_NAME-impl"
 ENV SECRET TG92ZSBpcyBhIHNlcmlvdXMgbWVudGFsIGRpc2Vhc2UK
 ENV PORT 9000
 ENV LISTEN 0.0.0.0
-ENV CONSUL consul
+ENV CONSUL 172.17.0.1
 
 EXPOSE $PORT
 CMD $SCRIPT -Dplay.crypto.secret=$SECRET -Dhttp.port=$PORT -Dhttp.server=$LISTEN -Dlagom.discovery.consul.agent-hostname=$CONSUL

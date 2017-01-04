@@ -8,13 +8,13 @@ function build() {
 
   rm -f $FILE
 
-  if [ ! -f "../../$1-impl/target/universal/$FILE" ]; then
+#  if [ ! -f "../../$1-impl/target/universal/$FILE" ]; then
     echo "$FILE not found. Let's build it..."
     pushd .
     cd  ../..
     sbt clean universal:packageZipTarball
     popd
-  fi
+ # fi
 
   cp ../../$1-impl/target/universal/$FILE .
 
