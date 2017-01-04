@@ -23,21 +23,6 @@ service-locator:
     - 8400:8400
     - 8500:8500
     - 8600:53/udp
-#
-# Service Discovery - Registrator
-#
-#service-discovery:
-#  image: gliderlabs/registrator
-#  container_name: registrator
-#  hostname: registrator
-#  restart: always
-  # -ip <ip address>   Force IP address used for registering services
-#  command: -ip=172.17.0.1 consul://consul:8500
-#  links:
-#  - service-locator
-#  volumes:
-#  - "/var/run/docker.sock:/tmp/docker.sock"
-  #net: "host"
 
 helloService:
   image: training/helloservice

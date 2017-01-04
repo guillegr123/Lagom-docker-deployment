@@ -16,22 +16,22 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import com.ecwid.consul.v1.ConsulClient
 import com.ecwid.consul.v1.QueryParams
+import com.ecwid.consul.v1.agent.model.NewService
 import com.ecwid.consul.v1.catalog.model.CatalogService
 import com.lightbend.lagom.javadsl.api.Descriptor.Call
 import com.lightbend.lagom.javadsl.api.ServiceLocator
-import play.api.Logger
 
 class ConsulServiceLocator @Inject()(client: ConsulClient, config: ConsulConfig)(implicit ec: ExecutionContext) extends ServiceLocator {
 
-  private val log = Logger(getClass)
-
   private val roundRobinIndexFor: Map[String, Int] = TrieMap.empty[String, Int]
 
-  override def locate(name: String): CompletionStage[Optional[URI]] =
-    locateAsScala(name).map(_.asJava).toJava
+  val service = new NewService
+  service.setId(config.serviceId)
+  service.setName(config.serviceName)
+  service.setPort(config.servicePort)
+  service.setAddress(config.serviceAddress)
+  new ConsulClient(config.agentHostname).agentServiceRegister(service)
 
-  override def locate(name: String, serviceCall: Call[_, _]): CompletionStage[Optional[URI]] =
-    locateAsScala(name).map(_.asJava).toJava
 
   override def doWithService[T](name: String, serviceCall: Call[_, _], block: JFunction[URI, CompletionStage[T]]): CompletionStage[Optional[T]] =
     locateAsScala(name).flatMap { uriOpt =>
@@ -40,16 +40,18 @@ class ConsulServiceLocator @Inject()(client: ConsulClient, config: ConsulConfig)
       }
     }.toJava
 
+  override def locate(name: String, serviceCall: Call[_, _]): CompletionStage[Optional[URI]] = locateAsScala(name).map(_.asJava).toJava
+
+
   private def locateAsScala(name: String): Future[Option[URI]] = Future {
-    log.info(s"Locate service : $name")
     val instances = client.getCatalogService(name, QueryParams.DEFAULT).getValue.asScala.toList
     instances.size match {
       case 0 => None
       case 1 => toURIs(instances).headOption
       case _ =>
         config.routingPolicy match {
-          case First      => Some(pickFirstInstance(instances))
-          case Random     => Some(pickRandomInstance(instances))
+          case First => Some(pickFirstInstance(instances))
+          case Random => Some(pickRandomInstance(instances))
           case RoundRobin => Some(pickRoundRobinInstance(name, instances))
         }
     }
