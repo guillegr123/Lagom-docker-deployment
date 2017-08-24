@@ -50,7 +50,7 @@ Microservices Test Project
 
         curl localhost:9001/v1/hello
 
-        curl localhost:9002/v1/greetings
+        curl localhost:9002/v1/greeting
 
 1. Get metrics
 
